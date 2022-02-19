@@ -1,5 +1,7 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
+const hre = require("hardhat");
+
 async function main() {
   // This is just a convenience check
   if (network.name === "hardhat") {
@@ -10,23 +12,30 @@ async function main() {
     );
   }
 
-  // ethers is available in the global scope
-  const [deployer] = await ethers.getSigners();
+  const [deployer] = await hre.ethers.getSigners();
   console.log(
     "Deploying the contracts with the account:",
     await deployer.getAddress()
   );
-
   console.log("Account balance:", (await deployer.getBalance()).toString());
-
-  const Token = await ethers.getContractFactory("Token");
-  const token = await Token.deploy();
+  console.log("deploying dehive contract");
+  const Token = await hre.ethers.getContractFactory("DeHiveToken");
+  console.log("Poster contract built ")
+  const token = await Token.deploy("Dehive for ethdenver2022");
+  console.log("poster deploy initiated ")
   await token.deployed();
 
   console.log("Token address:", token.address);
 
+
+
+  const Token1 = await hre.ethers.getContractFactory("Token");
+  console.log("Poster contract built ")
+  const token1 = await Token1.deploy();
+  console.log("token deploy initiated ")
+  await token1.deployed();
   // We also save the contract's artifacts and address in the frontend directory
-  saveFrontendFiles(token);
+  saveFrontendFiles(token1);
 }
 
 function saveFrontendFiles(token) {
