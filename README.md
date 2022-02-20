@@ -1,7 +1,9 @@
 # deHive - Decentralized Professional Network.
 
-:Project for EthDenver 2022
-## Challenges in centralized professional network platform
+Project for EthDenver 2022
+
+
+## Problem - Challenges in centralized professional network platform
 * Trustless management
 * Controls your data. 
 * No transparency on sharing your data.
@@ -10,6 +12,14 @@
 * High risk of data breaches affects your life.
 * Can be kicked out anytime for no reason.
 
+## Solution - How deHive breaks the monopoly?
+
+* Reimagines NFTs for social networks.
+* Member owns the profile.
+* Member controls who gets access.
+* Permissionless approach to employment verification.
+* Community endorsed skill recognition.
+* 
 ## What is deHive vision?
 
 * Democratizing of the professional network data. 
@@ -20,14 +30,6 @@
 * Governed by community.
 * Offers greater transparency
 * Rewards goes to the community.
-
-## Use Case:  Monopoly of Linkedin
-
-* Reimagines NFTs for social networks.
-* Member owns the profile.
-* Member controls who gets access.
-* Permissionless approach to employment verification.
-* Community endorsed skill recognition.
 
 ## How deHive works?
 
@@ -45,7 +47,7 @@
 * Tableland - Store additional metadata of members in tableland
 * Skale - SKALE HACK AWARDS
 
-Technical Info :
+## Technical Info :
 
 * We use the hardhat starter as a base and built on top of that.
 * We also used ERC 1155 contracts to establish connections
