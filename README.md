@@ -2,6 +2,10 @@
 
 Project for EthDenver 2022
 
+## Team
+
+* Prabhu Velayutham
+* Somasundaram Sundaram
 
 ## Problem - Challenges in centralized professional network platform
 * Trustless management
