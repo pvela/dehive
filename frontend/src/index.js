@@ -27,7 +27,7 @@ ReactDOM.render(
             <Nav></Nav>
           </Stack>
           <Stack>
-            <Container height={'80vh'} maxW={'5xl'}>
+            <Container maxW={'5xl'}>
               <Routes>
                 <Route path="/invite" element={<Invite/>} />
                 <Route path="/accept" element={<AcceptInvite/>} />
@@ -40,7 +40,7 @@ ReactDOM.render(
           </Stack>
         </Router>
         <Stack>
-          <Footer/>
+          
         </Stack>
       </Container>
     </ChakraProvider>,

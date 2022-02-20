@@ -26,9 +26,9 @@ export default function Home() {
               fontWeight={600}
               fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}
               lineHeight={'110%'}>
-              Take back control of {' '}
+              Take back control of your {' '}
               <Text as={'span'} color={'orange.400'}>
-              your Professional Profile and Contacts
+               Professional Profile and Contacts
               </Text>
             </Heading>
             <Text color={'gray.500'} maxW={'3xl'}>

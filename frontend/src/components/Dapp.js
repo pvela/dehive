@@ -2,10 +2,11 @@ import React from "react";
 
 // We'll use ethers to interact with the Ethereum network and our contract
 import { ethers } from "ethers";
-
+import { create } from 'ipfs-http-client'
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
 import TokenArtifact from "../contracts/Token.json";
+import DeHiveTokenArtifact from "../contracts/DeHiveToken.json";
 import contractAddress from "../contracts/contract-address.json";
 
 // All the logic of this dapp is contained in the Dapp component.
@@ -18,7 +19,8 @@ import { Transfer } from "./Transfer";
 import { TransactionErrorMessage } from "./TransactionErrorMessage";
 import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 import { NoTokensMessage } from "./NoTokensMessage";
-
+import { Navigate } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 
 // This is the Hardhat Network id, you might change it in the hardhat.config.js.
 // If you are using MetaMask, be sure to change the Network id to 1337.
@@ -28,6 +30,19 @@ const HARDHAT_NETWORK_ID = '31337';
 
 // This is an error code that indicates that the user canceled a transaction
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
+
+const hideDisplay = {display:'none'};
+
+function FirstLoginCheck(memberid) {
+  //const memberid = props.memberid;
+  console.log(memberid)
+  if (memberid == 0) {
+    return <Navigate to="/setup" />;
+  } else {
+    return <Navigate to="/profile" />;
+  }
+}
+
 
 // This component is in charge of doing these things:
 //   1. It connects to the user's wallet
@@ -40,6 +55,9 @@ const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
 // you how to keep your Dapp and contract's state in sync,  and how to send a
 // transaction.
 export class Dapp extends React.Component {
+  
+  
+
   constructor(props) {
     super(props);
 
@@ -56,10 +74,19 @@ export class Dapp extends React.Component {
       transactionError: undefined,
       networkError: undefined,
     };
-
     this.state = this.initialState;
   }
 
+  nextRoute(memberid) {
+    //const memberid = props.memberid;
+    console.log(memberid)
+    const navigate = useNavigate();
+      const memberData = {name:"test"};
+      if (this.memberid == 0)
+        navigate("/setup");
+      else
+        navigate("/profile",{state:memberData});
+  }
   render() {
     // Ethereum wallets inject the window.ethereum object. If it hasn't been
     // injected, we instruct the user to install MetaMask.
@@ -94,69 +121,10 @@ export class Dapp extends React.Component {
     return (
       <div className="container p-4">
         <div className="row">
-          <div className="col-12">
-            <h1>
-              {this.state.tokenData.name} ({this.state.tokenData.symbol})
-            </h1>
+          <div className="col-2">
             <p>
-              Welcome <b>{this.state.selectedAddress}</b>, you have{" "}
-              <b>
-                {this.state.balance.toString()} {this.state.tokenData.symbol}
-              </b>
-              .
+              Welcome <b>{this.state.ensName? this.state.ensName : this.state.selectedAddress} - {this.state.balance.toString()}</b>
             </p>
-          </div>
-        </div>
-
-        <hr />
-
-        <div className="row">
-          <div className="col-12">
-            {/* 
-              Sending a transaction isn't an immediate action. You have to wait
-              for it to be mined.
-              If we are waiting for one, we show a message here.
-            */}
-            {this.state.txBeingSent && (
-              <WaitingForTransactionMessage txHash={this.state.txBeingSent} />
-            )}
-
-            {/* 
-              Sending a transaction can fail in multiple ways. 
-              If that happened, we show a message here.
-            */}
-            {this.state.transactionError && (
-              <TransactionErrorMessage
-                message={this._getRpcErrorMessage(this.state.transactionError)}
-                dismiss={() => this._dismissTransactionError()}
-              />
-            )}
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-12">
-            {/*
-              If the user has no tokens, we don't show the Transfer form
-            */}
-            {this.state.balance.eq(0) && (
-              <NoTokensMessage selectedAddress={this.state.selectedAddress} />
-            )}
-
-            {/*
-              This component displays a form that the user can use to send a 
-              transaction and transfer some tokens.
-              The component doesn't have logic, it just calls the transferTokens
-              callback.
-            */}
-            {this.state.balance.gt(0) && (
-              <Transfer
-                transferTokens={(to, amount) =>
-                  this._transferTokens(to, amount)
-                }
-                tokenSymbol={this.state.tokenData.symbol}
-              />
-            )}
           </div>
         </div>
       </div>
@@ -180,9 +148,9 @@ export class Dapp extends React.Component {
     // Once we have the address, we can initialize the application.
 
     // First we check the network
-    if (!this._checkNetwork()) {
+    /*if (!this._checkNetwork()) {
       return;
-    }
+    }*/
 
     this._initialize(selectedAddress);
 
@@ -209,7 +177,7 @@ export class Dapp extends React.Component {
 
   _initialize(userAddress) {
     // This method initializes the dapp
-
+    
     // We first store the user's address in the component's state
     this.setState({
       selectedAddress: userAddress,
@@ -220,12 +188,12 @@ export class Dapp extends React.Component {
 
     // Fetching the token data and the user's balance are specific to this
     // sample project, but you can reuse the same initialization pattern.
-    this._initializeEthers();
+    this._initializeEthers(userAddress);
     this._getTokenData();
     this._startPollingData();
   }
 
-  async _initializeEthers() {
+  async _initializeEthers(userAddress) {
     // We first initialize ethers by creating a provider using window.ethereum
     this._provider = new ethers.providers.Web3Provider(window.ethereum);
 
@@ -236,6 +204,15 @@ export class Dapp extends React.Component {
       TokenArtifact.abi,
       this._provider.getSigner(0)
     );
+    this._hiveToken = new ethers.Contract(
+      contractAddress.DeHiveToken,
+      DeHiveTokenArtifact.abi,
+      this._provider.getSigner(0)
+    )
+    //this._ens = await this._provider.lookupAddress(userAddress);
+    /*this.setState({
+      ensName: this._ens
+    })*/
   }
 
   // The next two methods are needed to start and stop polling data. While
@@ -255,6 +232,7 @@ export class Dapp extends React.Component {
   _stopPollingData() {
     clearInterval(this._pollDataInterval);
     this._pollDataInterval = undefined;
+    //this.nextRoute(this.state.memberid);
   }
 
   // The next two methods just read from the contract and store the results
@@ -263,9 +241,43 @@ export class Dapp extends React.Component {
     const name = await this._token.name();
     const symbol = await this._token.symbol();
 
+    const memberid = await this._hiveToken.getMemberId();
+    this.memberid = memberid;
+    console.log("Member "+memberid);
+    this.setState({member:memberid});
+    //const addMember = await this._hiveToken.addMember("Prabhu","http://localhost:3000/metadata.json");
+    //console.log(addMember);
     this.setState({ tokenData: { name, symbol } });
   }
 
+  async addMember(memberProps) {
+    const client = create('https://ipfs.infura.io:5001/api/v0')
+    //https://ipfs.infura.io/ipfs/QmZRWJa3e1uVfBeDDuTkxcBK5m9GJ5zmWiN2LBH66PBtrS
+    let nftMetaData = {
+      "description": memberProps.description,
+      "image": memberProps.image,
+      "name": memberProps.name,
+      "attributes": [
+      {
+      "trait_type": "Experience",
+      "value": 10
+      },
+      {
+      "trait_type": "Company",
+      "value": "Metaverse"
+      },
+      {
+      "trait_type": "Domain",
+      "value": "Ethereum"
+      },
+
+      ]
+      }
+      const added = await client.add(JSON.stringify(nftMetaData));
+      const metadataUrl = `https://ipfs.infura.io/ipfs/${added.path}`
+    const addMember = await this._hiveToken.addMember(memberProps.name,metadataUrl);
+    //console.log(addMember);
+  }
   async _updateBalance() {
     const balance = await this._token.balanceOf(this.state.selectedAddress);
     this.setState({ balance });
